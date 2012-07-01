@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<module version="2.0">
+    <meta>
+        <identity>
+            <uri>urn:cogito:auditor</uri>
+            <version>1.0.0</version>
+        </identity>
+        <info>
+            <name>Auditor</name>
+            <description>Handles Audit Events</description>
+            <icon>res:/cogito/pub/cogito-logo.gif</icon>
+        </info>
+    </meta>
+    <rootspace public="true" uri="urn:cogito:auditor">      
+        <!-- Endpoints -->
+        <accessor>
+            <grammar>
+                <choice>
+                 <!-- Example: res:/cogito/audit/event/{event key} -->
+                <group name="AuditEvent">
+                    res:/cogito/audit/event/
+                    <group name="eventKey"><regex>.*-.\w+</regex></group>
+                    <optional>
+	                    +mime-type@
+	                    <group name="mime-type"><regex>.*</regex></group>
+                    </optional>
+                </group>
+                 <!-- Example: res:/cogito/audit/event/info -->
+                <group>
+                    res:/cogito/audit/event/info
+                    <optional>
+                        +mime-type@
+                        <group name="mime-type"><regex>.*</regex></group>
+                    </optional>                
+                </group>
+                </choice>  
+             </grammar>
+			 <class>cogito.auditing.endpoints.EventAccessor</class>
+        </accessor>
+        <accessor>
+            <!-- Example: res:/cogito/{application}/events -->
+            <grammar>
+                <group name="AuditEvents">
+                    res:/cogito/
+                    <group name="application"><regex type="alphanum"/></group>
+                    /events
+                 </group>
+                 <optional>
+	                 +mime-type@
+	                 <group name="mime-type"><regex>.*</regex></group>
+                 </optional>
+             </grammar>
+             <class>cogito.auditing.endpoints.EventsAccessor</class>
+        </accessor>
+        <!-- Module Icon -->   
+        <fileset>
+            <regex>res:/cogito/pub/(.*)</regex>
+            <rewrite>res:/pub/$1</rewrite>
+        </fileset>
+        <!-- Import public rootspaces from other modules --> 
+        <import>
+            <uri>urn:org:netkernel:ext:layer1</uri>
+        </import>
+       <import>
+            <uri>urn:org:netkernel:xml:core</uri>
+        </import>        
+    </rootspace>
+</module>
