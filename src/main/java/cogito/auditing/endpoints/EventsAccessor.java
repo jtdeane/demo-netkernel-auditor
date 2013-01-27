@@ -30,7 +30,7 @@ public class EventsAccessor extends StandardAccessorImpl {
 
         //retrieve the audit events for given applicaiton
 		AuditEvents auditEvents = AuditingServices.retrieveAuditEvents
-				(application);
+				(application, "localhost", 8080, "/cogito");
 		
         //get the mime type
 		String mimeType = context.getThisRequest().getArgumentValue("mime-type");	

@@ -129,8 +129,7 @@ public class EventAccessor extends StandardAccessorImpl {
 			throws Exception {
 	
 		//method variables
-		AuditEvent auditEvent = null;
-		
+		AuditEvent auditEvent = null;		
 		
         if (mimeType.equals("application/json")) {
         	

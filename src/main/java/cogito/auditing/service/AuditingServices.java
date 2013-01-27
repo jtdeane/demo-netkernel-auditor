@@ -1,19 +1,20 @@
 package cogito.auditing.service;
 
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+
 import cogito.auditing.model.AuditEvent;
-import cogito.auditing.model.AuditEventURL;
 import cogito.auditing.model.AuditEvents;
 
 /**
  * Services for storing and retrieving application audit events
  * @author jeremydeane
  */
-public final class AuditingServices {
+public class AuditingServices {
 	
 	//in memory storage of application audits
 	private static ConcurrentHashMap<String, AuditEvent> audits = 
@@ -46,7 +47,7 @@ public final class AuditingServices {
 	 * @return AuditEvent
 	 */
 	public static AuditEvent retrieveAuditEvent(String auditEventKey) {
-		 
+		
 		return audits.get(auditEventKey);
 	}
 	
@@ -62,22 +63,26 @@ public final class AuditingServices {
 	/**
 	 * Retrieve all audit events for a given application
 	 * @param application
+	 * @param host
+	 * @param port
+	 * @param context
 	 * @return AuditEvents
+	 * @throws Exception
 	 */
-	public static AuditEvents retrieveAuditEvents (String application) {
+	public static AuditEvents retrieveAuditEvents (String application, String host, 
+			int port, String context) throws Exception {
 		
-		List<AuditEventURL> auditEvents = new ArrayList<AuditEventURL>();
+		List<URL> auditEventLocations = new ArrayList<URL>();
 		
 		for (Map.Entry<String,AuditEvent> entry : audits.entrySet()) {
 		    
 		    if (entry.getKey().contains(application)) {
 		    	
-		    	auditEvents.add(new AuditEventURL("localhost", 8080, "/cogito", 
-		    			entry.getKey()));
+		    	auditEventLocations.add (entry.getValue().getAuditEventLocation(host, port, context));
 		    }	    
 		}
 		
-		return new AuditEvents (application, auditEvents);
+		return new AuditEvents (application, auditEventLocations);
 	}
 	
 	/**
@@ -86,12 +91,12 @@ public final class AuditingServices {
 	 * @return String
 	 */
 	public static String createResponseURL (String auditEventKey) {
-		
+
 		StringBuffer url = new StringBuffer 
 				("http://localhost:8080/audit/event/");
-		
+
 		url.append(auditEventKey);
-		
+
 		return url.toString();
-	}
+	}	
 }

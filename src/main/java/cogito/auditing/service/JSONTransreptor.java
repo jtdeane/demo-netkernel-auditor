@@ -1,6 +1,6 @@
 package cogito.auditing.service;
 
-import org.codehaus.jackson.map.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 /**
  * Services for conversion between JSON and POJOs

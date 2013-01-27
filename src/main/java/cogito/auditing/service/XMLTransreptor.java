@@ -1,10 +1,13 @@
 package cogito.auditing.service;
 
-import cogito.auditing.model.AuditEvent;
-import cogito.auditing.model.AuditEventURL;
-import cogito.auditing.model.AuditEvents;
+import java.io.ByteArrayOutputStream;
+import java.io.InputStream;
 
-import com.thoughtworks.xstream.XStream;
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.Marshaller;
+import javax.xml.bind.Unmarshaller;
+
+import org.apache.commons.io.IOUtils;
 
 /**
  * Services for conversion between XML and POJOs using XStream
@@ -13,7 +16,7 @@ import com.thoughtworks.xstream.XStream;
  */
 public final class XMLTransreptor {
 	
-	private final XStream xstream;
+	private final JAXBContext jaxbContext;
 	
 	private static class XMLTransreptorLoader {
 		private static final XMLTransreptor INSTANCE = new XMLTransreptor();
@@ -24,11 +27,17 @@ public final class XMLTransreptor {
 	 */
     private XMLTransreptor() {
     	
-    	xstream = new XStream();
-    	
-    	xstream.alias("event", AuditEventURL.class);
-    	xstream.alias("audit-event", AuditEvent.class);
-    	xstream.alias("audit-events", AuditEvents.class);
+    	try {
+			
+    		jaxbContext = JAXBContext.newInstance (new Class[] 
+    				{cogito.auditing.model.AuditEvent.class, 
+    				cogito.auditing.model.AuditEvents.class});
+    		
+    		
+		} catch (Exception e) {
+			
+			throw new IllegalStateException("Unable to initialize JAXB");
+		}
        
     	if (XMLTransreptorLoader.INSTANCE != null) {
             throw new IllegalStateException("Already instantiated");
@@ -50,7 +59,12 @@ public final class XMLTransreptor {
 	 * @throws Exception
 	 */
 	public Object toPOJO (String xml) throws Exception {
-		return xstream.fromXML(xml);
+		
+		Unmarshaller unmarshaller = jaxbContext.createUnmarshaller();
+		
+		InputStream stream = IOUtils.toInputStream (xml);
+		
+		return unmarshaller.unmarshal(stream);
 	}
 	
 	/**
@@ -60,6 +74,13 @@ public final class XMLTransreptor {
 	 * @throws Exception
 	 */
 	public String toXML (Object object) throws Exception {
-		return xstream.toXML(object);
+		
+		Marshaller marsheller = jaxbContext.createMarshaller();
+		
+		ByteArrayOutputStream outStream = new ByteArrayOutputStream();
+		
+		marsheller.marshal(object, outStream);
+		
+		return outStream.toString();
 	}
 }
